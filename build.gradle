@@ -19,11 +19,18 @@ repositories {
 }
 
 dependencies {
+	// spring boot는 왠만한 library들은 version을 알아서 맞춰서 붙여줌
+	// 다만 왠만한 범주에 없을 경우 마지막에 버전을 적어줘야 함
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	// 원활한 개발 환경을 위해 devtools 주입 : 개발 시 개발한 파일만 Build 메뉴에서 Recompile
 	implementation 'org.springframework.boot:spring-boot-devtools'
+
+	// jpa로 생성해주는 쿼리에 parameter가 ?로 찍히는걸 실제 binding 된 parameter의 value로 표시해 줌(개꿀)
+	// 다만 운영에 반영할 경우 성능에 (병목현상) 영향을 줄 수 있기 때문에 운영 반영은 고민해볼 필요가 있음
+	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 	annotationProcessor 'org.projectlombok:lombok'
