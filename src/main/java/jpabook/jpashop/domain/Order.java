@@ -27,6 +27,7 @@ public class Order {
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne
+    @JoinColumn(name = "delivery_id")
     private Delivery delivery;
 
     // LocalDataTime을 사용할 경우 Hibernate가 그냥 지원 함 java 8 이상부터.
