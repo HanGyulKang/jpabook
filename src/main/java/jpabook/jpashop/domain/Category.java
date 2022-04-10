@@ -29,7 +29,7 @@ public class Category {
 
     // -------------------------------------- S
     // 스스로 Entity를 연관관계로 묶음
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
