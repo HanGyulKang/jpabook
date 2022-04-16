@@ -1,10 +1,15 @@
 package jpabook.jpashop.repository;
 
 import jpabook.jpashop.domain.Order;
+import jpabook.jpashop.domain.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -21,7 +26,123 @@ public class OrderRepository {
         return em.find(Order.class, id);
     }
 
-//    public List<Order> findAll(OrderSearch orderSearch) {
-//
-//    }
+    /**
+     * 결론 : query dsl을 써라
+     */
+    /* 예시
+    public List<Order> findAll(OrderSearch orderSearch) {
+        QOrder oder = QOrder.order;
+        QMember = member = QMember.member;
+
+        return query
+                .select(order)
+                .from(order)
+                .join(order.member, member)
+                .where(statusEq(orderSearch.getOrderStatus()),
+                        nameLike(orderSearch.getMemberName()))
+                .limit(1000)
+                .fetch();
+    }
+    private BooleanExpression statusEq(OrderStatus statusCond) {
+        if(statusCond == null) {
+            return null;
+        }
+        return order.status.eq(statusCond);
+    }
+    private BooleanExpression nameLike(String nameCond) {
+        if(!StringUtils.hasText(nameCond)) {
+            return null;
+        }
+        return member.name.like(nameCond);
+    }
+    */
+
+    /**
+     * 다이나믹 쿼리 처리 방법 [권장하지 않는 방법 1]
+     */
+    public List<Order> findAllByString(OrderSearch orderSearch) {
+        // JPQL [2] : 버그가 너무 쉽게 생길 수 있다.
+        String jpql = "select o from Order o join o.member m";
+        boolean isFirstCondition = true;
+
+        // 주문 상태 검색
+        if(orderSearch.getOrderStatus() != null) {
+            if(isFirstCondition) {
+                jpql += " where";
+                isFirstCondition = false;
+            } else {
+                jpql += " and";
+            }
+            jpql += " o.status = :status";
+        }
+
+        // 회원 이름 검색
+        if(StringUtils.hasText(orderSearch.getMemberName())) {
+            if(isFirstCondition) {
+                jpql += " where";
+            } else {
+                jpql += " and";
+            }
+            jpql += " m.name like :name";
+        }
+
+        TypedQuery query = em.createQuery(jpql, Order.class)
+                .setMaxResults(1000);
+
+        if(orderSearch.getOrderStatus() != null) {
+            query = query.setParameter("status", orderSearch.getOrderStatus());
+        }
+        if(StringUtils.hasText(orderSearch.getMemberName())) {
+            query = query.setParameter("name", orderSearch.getMemberName());
+        }
+
+        List<Order> resultList = query.getResultList();
+        return resultList;
+
+        // JPQL [1]
+        /*
+        return em.createQuery("select o from Order o join o.member m" +
+                " where o.status = :status " +
+                " and m.name like :name"
+                , Order.class)
+                .setParameter("status", orderSearch.getOrderStatus())
+                .setParameter("name", orderSearch.getMemberName())
+                // 페이징 S
+                .setFirstResult(0) // 최소
+                .setMaxResults(1000) // 최대
+                // 페이징 E
+                .getResultList();
+         */
+    }
+
+    /**
+     * 다이나믹 쿼리 처리 방법 [권장하지 않는 방법 2]
+     * JPA Criteria : 치명적인 단점이 있음 = 실무 효율성이 떨어짐. 즉, 유지보수성이 거의 제로에 가까움. 딱 봤을 때 쿼리가 한 번에 떠오르지 않음
+     */
+    public List<Order> findAllByCriteria(OrderSearch orderSearch) {
+        // JPA 표준 제공(동적쿼리)
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+
+        Root<Order> o = cq.from(Order.class);
+        Join<Object, Object> m = o.join("member", JoinType.INNER);
+
+        List<Predicate> criteria = new ArrayList<>();
+
+        // 주문 상태 검색
+        if(orderSearch.getOrderStatus() != null) {
+            Predicate status = cb.equal(o.get("status"), orderSearch.getOrderStatus());
+            criteria.add(status);
+        }
+        // 회월 이름 검색
+        if(orderSearch.getOrderStatus() != null) {
+            Predicate name = cb.like(m.<String>get("name"), "%" + orderSearch.getMemberName() + "%");
+            criteria.add(name);
+        }
+
+        cq.where(cb.and(criteria.toArray(new Predicate[criteria.size()])));
+        TypedQuery<Order> query = em.createQuery(cq).setMaxResults(1000);
+
+        return query.getResultList();
+    }
 }
