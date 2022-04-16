@@ -26,4 +26,33 @@ public class OrderItem {
 
     private int orderPirce; //주문 당시 가격
     private int count; // 주문 당시 수량
+
+    //==생성 메서드==//
+    public static OrderItem createOrderItem(Item item, int orderPirce, int count) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setItem(item);
+        orderItem.setOrderPirce(orderPirce);
+        orderItem.setCount(count);
+
+        // 오더 아이템이 생성될 떄는 주문이 들어왔기 때문에 재고를 제거해줘야 함
+        item.removeStock(count);
+        return orderItem;
+    }
+
+    //==비즈니스 로직==//
+    /**
+     * 주문 취소
+     */
+    public void cancle() {
+        // 주문 취소가 되기 때문에 재고를 늘리는게 목적
+        getItem().addStock(count);
+    }
+
+    //==조회 로직==//
+    /**
+     * 주문 상품 전체 가격 조회
+     */
+    public int getTotalPrice() {
+        return getOrderPirce() * getCount();
+    }
 }
