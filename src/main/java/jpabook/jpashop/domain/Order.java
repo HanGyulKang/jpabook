@@ -1,6 +1,8 @@
 package jpabook.jpashop.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.aspectj.weaver.ast.Or;
 
@@ -13,6 +15,7 @@ import java.util.List;
 @Table(name = "orders")
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order {
 
     @Id
@@ -45,7 +48,7 @@ public class Order {
     private LocalDateTime orderData;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status; // 주문 상태 [ORDER, CANCLE]
+    private OrderStatus status; // 주문 상태 [ORDER, CANCEL]
 
     //==연관관계 편의 메서드==//
     public void setMember(Member member) {
@@ -81,15 +84,15 @@ public class Order {
     /**
      *  주문 취소
      */
-    public void cancle() {
+    public void cancel() {
         // 이미 배송완료된 상품
         if(delivery.getStatus() == DeliveryStatus.COMP) {
             throw new IllegalStateException("이미 배송완료된 상품은 취소가 불가능합니다.");
         }
 
-        this.setStatus(OrderStatus.CANCLE);
+        this.setStatus(OrderStatus.CANCEL);
         for (OrderItem orderItem : orderItems) {
-            orderItem.cancle();
+            orderItem.cancel();
         }
     }
 

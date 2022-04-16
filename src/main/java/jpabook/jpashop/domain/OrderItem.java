@@ -1,7 +1,9 @@
 package jpabook.jpashop.domain;
 
 import jpabook.jpashop.domain.item.Item;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -9,6 +11,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
 
     @Id
@@ -43,7 +46,7 @@ public class OrderItem {
     /**
      * 주문 취소
      */
-    public void cancle() {
+    public void cancel() {
         // 주문 취소가 되기 때문에 재고를 늘리는게 목적
         getItem().addStock(count);
     }
