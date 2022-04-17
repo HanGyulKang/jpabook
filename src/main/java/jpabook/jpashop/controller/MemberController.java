@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -28,6 +30,14 @@ public class MemberController {
     // 멤버 정보를 등록하려는 목적 : Post
     @PostMapping("members/new")
     public String create(@Valid MemberForm form, BindingResult result) {
+        /**
+         * [Member Entity가 있는데 MemberForm 클래스를 굳이 생성한 이유]
+         * Member Entity를 사용하면 거기에 Validation 체크도 넣어야 하고,
+         * 또 실무로 넘어가면 Entity 클래스 하나가 너무 복잡해질 수도 있음.
+         *
+         * 그렇기 때문에 받을 데이터만 가지고있는 Validation Check용도의 클래스를 해당 메서드의 Parameter와 같이
+         * 따로 생성해주고 관리해주는 것이 좋음
+         */
 
         // Valid 체크한 것이 에러가 있다면...
         if(result.hasErrors()) {
@@ -42,5 +52,23 @@ public class MemberController {
 
         memberService.join(member);
         return "redirect:/";
+    }
+
+    @GetMapping("/members")
+    public String list(Model model) {
+        List<Member> members = memberService.findMembers();
+        MemberListForm memberListForm = new MemberListForm();
+
+        List<MemberListForm> memberListFormList = new ArrayList<>();
+
+        for(int i = 0; i < members.size(); i++) {
+            memberListForm.setId(members.get(i).getId());
+            memberListForm.setName(members.get(i).getName());
+            memberListForm.setAddress(members.get(i).getAddress());
+            memberListFormList.add(i, memberListForm);
+        }
+        model.addAttribute("members", memberListFormList);
+
+        return "members/memberList";
     }
 }
