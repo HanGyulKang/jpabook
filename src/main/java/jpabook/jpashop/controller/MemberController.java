@@ -1,5 +1,7 @@
 package jpabook.jpashop.controller;
 
+import jpabook.jpashop.controller.Form.MemberForm;
+import jpabook.jpashop.controller.Form.MemberListForm;
 import jpabook.jpashop.domain.Address;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.service.MemberService;
@@ -58,16 +60,7 @@ public class MemberController {
     public String list(Model model) {
         List<Member> members = memberService.findMembers();
         MemberListForm memberListForm = new MemberListForm();
-
-        List<MemberListForm> memberListFormList = new ArrayList<>();
-
-        for(int i = 0; i < members.size(); i++) {
-            memberListForm.setId(members.get(i).getId());
-            memberListForm.setName(members.get(i).getName());
-            memberListForm.setAddress(members.get(i).getAddress());
-            memberListFormList.add(i, memberListForm);
-        }
-        model.addAttribute("members", memberListFormList);
+        model.addAttribute("members", memberListForm.createReturnMemberList(members));
 
         return "members/memberList";
     }

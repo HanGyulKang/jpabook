@@ -16,10 +16,10 @@ public class ItemRepository {
     public void save(Item item) {
         if(item.getId() == null) {
             // 처음에 아이템이 없기 때문에 JPA가 제공하는 persist를 사용, 즉 완전히 새로 생성한 데이터(신규 등록)
-            em.persist(item.getId());
+            em.persist(item);
         } else {
-            // update와 유사함s
-            em.merge(item.getId());
+            // update와 유사함
+            em.merge(item);
         }
     }
 
