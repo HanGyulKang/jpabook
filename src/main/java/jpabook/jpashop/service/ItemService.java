@@ -39,7 +39,7 @@ public class ItemService {
         // itemRepository.save(findItem);
     }
 
-    public List<Item> fineItems() {
+    public List<Item> findItems() {
         return itemRepository.findAll();
     }
 
