@@ -27,14 +27,14 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    private int orderPirce; //주문 당시 가격
+    private int orderPrice; //주문 당시 가격
     private int count; // 주문 당시 수량
 
     //==생성 메서드==//
     public static OrderItem createOrderItem(Item item, int orderPirce, int count) {
         OrderItem orderItem = new OrderItem();
         orderItem.setItem(item);
-        orderItem.setOrderPirce(orderPirce);
+        orderItem.setOrderPrice(orderPirce);
         orderItem.setCount(count);
 
         // 오더 아이템이 생성될 떄는 주문이 들어왔기 때문에 재고를 제거해줘야 함
@@ -56,6 +56,6 @@ public class OrderItem {
      * 주문 상품 전체 가격 조회
      */
     public int getTotalPrice() {
-        return getOrderPirce() * getCount();
+        return getOrderPrice() * getCount();
     }
 }

@@ -45,7 +45,7 @@ public class Order {
     private Delivery delivery;
 
     // LocalDataTime을 사용할 경우 Hibernate가 그냥 지원 함 java 8 이상부터.
-    private LocalDateTime orderData;
+    private LocalDateTime orderDate;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status; // 주문 상태 [ORDER, CANCEL]
@@ -76,7 +76,7 @@ public class Order {
             order.addOrderItem(orderItem);
         }
         order.setStatus(OrderStatus.ORDER);
-        order.setOrderData(LocalDateTime.now());
+        order.setOrderDate(LocalDateTime.now());
         return order;
     }
 
